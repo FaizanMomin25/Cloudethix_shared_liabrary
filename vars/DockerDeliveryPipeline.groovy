@@ -7,8 +7,8 @@ def call(body) {
         agent any
         environment {
             registryURI = 'https://registry.hub.docker.com/'
-            registry = 'teamcloudethix/cloudethix-sample-nginx'
-            registryCredential = '02_docker_hub_creds'
+            registry = 'faizanmomin2508/cloudethix_sample_nginx'
+            registryCredential = '02_docker_hub_user'
         //platform = getPlatformName()
         }
         stages {
