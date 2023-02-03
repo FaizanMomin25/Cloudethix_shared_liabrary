@@ -122,12 +122,12 @@ def call(body) {
                             sh "docker rmi ${env.qa_image}"
                             sh "docker rmi ${env.stage_image}"
                         }
-                      }
                     }
-                    stage('Push the Docker Image in PROD') {
-                        when {
-                             expression {
-                                 params.account == 'prod'
+            }
+            stage('Push the Docker Image in PROD') {
+                when {
+                    expression {
+                        params.account == 'prod'
                     }
                 }
                     environment {
@@ -151,8 +151,8 @@ def call(body) {
                             }
 
                             sh 'echo Image pushed'
-                             }
-                         }
+                        }
+                    
                     }
                     post {
                         always {
@@ -161,6 +161,7 @@ def call(body) {
                             sh "docker rmi ${env.prod_image}"
                         }
                     }
+			}
         }
         post {
             always {
