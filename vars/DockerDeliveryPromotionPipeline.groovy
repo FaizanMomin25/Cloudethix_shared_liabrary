@@ -87,6 +87,78 @@ def call(body) {
                         }
                     }
             }
+            stage('Push the Docker Image in stage') {
+                when {
+                    expression {
+                        params.account == 'stage'
+                    }
+                }
+                    environment {
+                        qa_registry_endpoint = 'https://' + "${env.registryURI}" + "${env.qa_registry}"
+                        stage_registry_endpoint  = 'https://' + "${env.registryURI}" + "${env.stage_registry}"
+                        qa_image             = "${registryURI}" + "${env.qa_registry}" + ':' + "${env.COMMITID}"
+                        stage_image              = "${registryURI}" + "${env.stage_registry}" + ':' + "${env.COMMITID}"
+                    }
+                    steps {
+                        script {
+                            docker.withRegistry(qa_registry_endpoint, qa_dh_creds) {
+                                docker.image(qa_image).pull()
+                            }
+
+                            sh 'echo Image pulled'
+
+                            sh "docker tag ${env.qa_image} ${env.stage_image}"
+
+                            docker.withRegistry(stage_registry_endpoint , stage_dh_creds) {
+                                docker.image(env.stage_image).push()
+                            }
+
+                            sh 'echo Image pushed'
+                        }
+                    }
+                    post {
+                        always {
+                            sh 'echo Cleaning docker Images from Jenkins.'
+                            sh "docker rmi ${env.qa_image}"
+                            sh "docker rmi ${env.stage_image}"
+                        }
+                    }
+                    stage('Push the Docker Image in stage') {
+                when {
+                    expression {
+                        params.account == 'prod'
+                    }
+                }
+                    environment {
+                        stage_registry_endpoint = 'https://' + "${env.registryURI}" + "${env.stage_registry}"
+                        prod_registry_endpoint  = 'https://' + "${env.registryURI}" + "${env.prod_registry}"
+                        stage_image             = "${registryURI}" + "${env.stage_registry}" + ':' + "${env.COMMITID}"
+                        prod_image              = "${registryURI}" + "${env.prod_registry}" + ':' + "${env.COMMITID}"
+                    }
+                    steps {
+                        script {
+                            docker.withRegistry(stage_registry_endpoint, stage_dh_creds) {
+                                docker.image(stage_image).pull()
+                            }
+
+                            sh 'echo Image pulled'
+
+                            sh "docker tag ${env.stage_image} ${env.prod_image}"
+
+                            docker.withRegistry(prod_registry_endpoint , prod_dh_creds) {
+                                docker.image(env.prod_image).push()
+                            }
+
+                            sh 'echo Image pushed'
+                        }
+                    }
+                    post {
+                        always {
+                            sh 'echo Cleaning docker Images from Jenkins.'
+                            sh "docker rmi ${env.stage_image}"
+                            sh "docker rmi ${env.prod_image}"
+                        }
+                    }
         }
         post {
             always {
@@ -97,3 +169,4 @@ def call(body) {
         }
     }
 }
+            
