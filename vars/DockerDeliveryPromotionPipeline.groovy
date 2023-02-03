@@ -87,7 +87,7 @@ def call(body) {
                         }
                     }
             }
-            stage('Push the Docker Image in stage') {
+            stage('Push the Docker Image in STAGE') {
                 when {
                     expression {
                         params.account == 'stage'
@@ -123,7 +123,7 @@ def call(body) {
                             sh "docker rmi ${env.stage_image}"
                         }
                     }
-                    stage('Push the Docker Image in stage') {
+                    stage('Push the Docker Image in PROD') {
                 when {
                     expression {
                         params.account == 'prod'
